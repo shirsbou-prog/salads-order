@@ -34,6 +34,9 @@
   .stepper button{width:32px;height:32px;border-radius:50%;border:2px solid #D4AF37;background:#fff;font-size:20px;font-weight:800;line-height:1;cursor:pointer;color:#000;padding:0}
   .stepper button.inc{background:#D4AF37}
   .stepper .q{min-width:22px;text-align:center;font-weight:800;font-size:17px}
+  .size{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-weight:400;font-size:14px}
+  .size b{color:#8a6d1a}
+  .size .stepper{margin-top:0}
   label.f{display:block;font-weight:800;font-size:14px;margin:10px 0 4px}
   input.t,textarea,select{width:100%;padding:11px 12px;border:1.5px solid #ead7dd;border-radius:8px;font-family:inherit;font-size:16px;background:#fff}
   .invalid{border-color:#c0392b !important}
@@ -72,7 +75,7 @@
 
   <div class="block">
     <div class="h">קישים משפחתיים</div>
-    <div class="sub">קוטר 20 · 129 ש"ח לקיש</div>
+    <div class="sub">בוחרים טעם וקוטר: קוטר 20 ב-129 ש"ח, קוטר 24 ב-159 ש"ח</div>
     <div id="quiches"></div>
   </div>
 
@@ -130,12 +133,12 @@
     {k:'thai', n:'סלט תאילנדי', d:'כרוב לבן, מלפפון ירוק ובצל ירוק ברוטב סויה וחמאת בוטנים', p:149},
     {k:'veg', n:'מגש ירקות חתוכים', d:'חגיגת ירקות צבעוניים חתוכים ומסודרים בקפידה, תירס גמדי, לימונים טריים, טחינה', p:139}
   ];
-  var QUICHES = [
-    {k:'qPepper', n:'קיש פלפלים קלויים', p:129},
-    {k:'qOnion', n:'קיש בצלים', p:129},
-    {k:'qPotato', n:'קיש בטטה', p:129},
-    {k:'qMushroom', n:'קיש פטריות ובצלים', p:129}
-  ];
+  var QUICHE_FLAVORS = [['qPepper','קיש פלפלים קלויים'],['qOnion','קיש בצלים'],['qPotato','קיש בטטה'],['qMushroom','קיש פטריות ובצלים']];
+  var QUICHES = [];
+  QUICHE_FLAVORS.forEach(function(f){
+    QUICHES.push({k:f[0], n:f[1]+' (קוטר 20)', p:129, fl:f[1], size:'קוטר 20'});
+    QUICHES.push({k:f[0]+'24', n:f[1]+' (קוטר 24)', p:159, fl:f[1], size:'קוטר 24'});
+  });
   var ALL = SALADS.concat(QUICHES), s = {};
   ALL.forEach(function(x){ s[x.k] = 0; });
 
@@ -145,7 +148,14 @@
       '<button type="button" class="inc" data-k="'+x.k+'" data-d="1" aria-label="עוד">+</button></div></div>';
   }
   document.getElementById('salads').innerHTML = SALADS.map(row).join('');
-  document.getElementById('quiches').innerHTML = QUICHES.map(row).join('');
+  document.getElementById('quiches').innerHTML = QUICHE_FLAVORS.map(function(f){
+    var sz = QUICHES.filter(function(x){ return x.fl === f[1]; });
+    return '<div class="row qrow"><span class="thumb"></span><div class="name">'+f[1]+
+      sz.map(function(x){
+        return '<div class="size"><span>'+x.size+' · <b>'+x.p+' ₪</b></span><div class="stepper"><button type="button" data-k="'+x.k+'" data-d="-1" aria-label="פחות">−</button>'+
+          '<span class="q" id="q_'+x.k+'">0</span><button type="button" class="inc" data-k="'+x.k+'" data-d="1" aria-label="עוד">+</button></div></div>';
+      }).join('')+'</div></div>';
+  }).join('');
 
   // earliest pickup = 48 hours from now
   function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
